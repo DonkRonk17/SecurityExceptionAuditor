@@ -1,0 +1,23 @@
+# SecurityExceptionAuditor Requirements
+# ======================================
+# This tool uses ONLY Python standard library!
+# No external dependencies required.
+#
+# Python 3.8+ required
+#
+# Standard library modules used:
+# - argparse (CLI interface)
+# - json (data serialization)
+# - os (file system operations)
+# - platform (platform detection)
+# - re (regular expressions)
+# - subprocess (external commands)
+# - sys (system functions)
+# - datetime (timestamps)
+# - pathlib (path handling)
+# - typing (type hints)
+# - unittest (testing)
+#
+# Optional for development:
+# pytest>=7.0.0  # Alternative test runner
+# mypy>=1.0.0    # Type checking

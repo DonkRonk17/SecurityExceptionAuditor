@@ -1,0 +1,329 @@
+================================================================================
+SECURITYEXCEPTIONAUDITOR CHEAT SHEET
+================================================================================
+
+Version: 1.0.0
+Tool: Security Exception Manager for Development Environments
+GitHub: https://github.com/DonkRonk17/SecurityExceptionAuditor
+
+================================================================================
+QUICK START
+================================================================================
+
+1. Navigate to tool:  cd AutoProjects/SecurityExceptionAuditor
+2. Run help:          python securityaudit.py --help
+3. Basic audit:       python securityaudit.py audit
+4. Get whitelist:     python securityaudit.py recommend
+
+================================================================================
+COMMON COMMANDS
+--------------------------------------------------------------------------------
+
+AUDIT - View all security exceptions
+--------------------------------------------------------------------------------
+
+  Basic audit:
+    python securityaudit.py audit
+
+  Audit with recommendations:
+    python securityaudit.py audit --recommend
+
+  Audit specific product:
+    python securityaudit.py audit --product defender
+    python securityaudit.py audit --product bitdefender
+    python securityaudit.py audit --product windows_firewall
+
+  Save to file:
+    python securityaudit.py audit --output report.md
+    python securityaudit.py audit --output report.json --format json
+
+  Full audit command:
+    python securityaudit.py audit --recommend -o full_report.md -f markdown
+
+--------------------------------------------------------------------------------
+
+RECOMMEND - Get Team Brain whitelist suggestions
+--------------------------------------------------------------------------------
+
+  Basic recommendations:
+    python securityaudit.py recommend
+
+  Save as JSON:
+    python securityaudit.py recommend --format json --output whitelist.json
+
+  Save as Markdown:
+    python securityaudit.py recommend --format markdown --output whitelist.md
+
+--------------------------------------------------------------------------------
+
+CHECK - Verify process/port status
+--------------------------------------------------------------------------------
+
+  Check process:
+    python securityaudit.py check --process python.exe
+    python securityaudit.py check --process uvicorn
+    python securityaudit.py check --process node
+
+  Check port:
+    python securityaudit.py check --port 8000
+    python securityaudit.py check --port 3000
+    python securityaudit.py check --port 80
+
+  Check both:
+    python securityaudit.py check --process uvicorn --port 8000
+
+  JSON output:
+    python securityaudit.py check --process python.exe --format json
+
+--------------------------------------------------------------------------------
+
+CLEANUP - Remove stale exceptions
+--------------------------------------------------------------------------------
+
+  Preview stale (SAFE):
+    python securityaudit.py cleanup --dry-run
+
+  Actually remove (Windows Defender only):
+    python securityaudit.py cleanup --apply
+
+  NOTE: Always use --dry-run first!
+
+--------------------------------------------------------------------------------
+
+PRODUCTS - List available security products
+--------------------------------------------------------------------------------
+
+  python securityaudit.py products
+
+================================================================================
+CLI FLAGS & OPTIONS
+--------------------------------------------------------------------------------
+
+Global Options:
+  -h, --help         Show help message
+  -v, --version      Show version number
+
+audit:
+  --product, -p      Specific product (defender, bitdefender, windows_firewall)
+  --output, -o       Output file path
+  --format, -f       Output format (markdown, json)
+  --recommend, -r    Include Team Brain recommendations
+
+recommend:
+  --output, -o       Output file path
+  --format, -f       Output format (markdown, json)
+
+check:
+  --process          Process name to check
+  --port             Port number to check
+  --format, -f       Output format (text, json)
+
+cleanup:
+  --dry-run          Preview only, no changes
+  --apply            Actually remove stale exceptions
+
+================================================================================
+SUPPORTED PRODUCTS
+--------------------------------------------------------------------------------
+
+  defender           Windows Defender (full support)
+  bitdefender        Bitdefender (limited - config parsing)
+  windows_firewall   Windows Firewall rules
+  linux_firewall     Linux iptables/ufw rules
+
+Platform Detection:
+  - Windows: defender, bitdefender, windows_firewall
+  - Linux: linux_firewall
+
+================================================================================
+OUTPUT FORMATS
+--------------------------------------------------------------------------------
+
+Markdown (default):
+  - Human-readable
+  - Tables and sections
+  - Good for documentation
+
+JSON:
+  - Machine-readable
+  - Good for automation
+  - Pipe to jq for processing
+
+Examples:
+  python securityaudit.py audit --format markdown
+  python securityaudit.py audit --format json | jq '.summary'
+
+================================================================================
+PYTHON API
+--------------------------------------------------------------------------------
+
+Import:
+  from securityaudit import SecurityExceptionAuditor
+
+Initialize:
+  auditor = SecurityExceptionAuditor()
+
+Check Products:
+  products = auditor.get_available_products()
+
+Run Audit:
+  results = auditor.audit()
+  results = auditor.audit(products=["defender"])
+
+Get Recommendations:
+  recommendations = auditor.generate_recommendations()
+  missing = recommendations["missing"]
+  covered = recommendations["already_covered"]
+
+Find Stale:
+  stale = auditor.find_stale_exceptions()
+
+Check Process/Port:
+  check = auditor.check_process_and_port(process="python", port=8000)
+  is_running = check["process"]["is_running"]
+  is_in_use = check["port"]["is_in_use"]
+
+Generate Reports:
+  from securityaudit import generate_markdown_report, generate_json_report
+  
+  markdown = generate_markdown_report(results, recommendations)
+  json_str = generate_json_report(results, recommendations)
+
+================================================================================
+TEAM BRAIN WHITELIST
+--------------------------------------------------------------------------------
+
+Pre-built paths for common development tools:
+
+Category: runtime
+  - Python: C:\Python312Official\python.exe
+  - Node.js: C:\Program Files\nodejs\node.exe
+
+Category: server
+  - Uvicorn: C:\Python312Official\Scripts\uvicorn.exe
+  - Ports: 8000, 8001, 8080
+
+Category: project
+  - BCH Backend: D:\BEACON_HQ\PROJECTS\00_ACTIVE\BCH_APPS\backend\
+
+Category: tools
+  - AutoProjects: C:\Users\logan\OneDrive\Documents\AutoProjects\
+  - Git: C:\Program Files\Git\
+
+Category: ide
+  - Cursor: C:\Users\logan\AppData\Local\Programs\cursor\
+
+Category: network
+  - Tailscale: C:\Program Files\Tailscale\
+
+================================================================================
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+
+Error: "Access Denied"
+  -> Run as Administrator
+  -> Or accept partial results (warnings shown in report)
+
+Error: "Bitdefender not detected"
+  -> Bitdefender uses different config locations
+  -> Export exceptions manually from GUI
+  -> Config at: %ProgramData%\Bitdefender\
+
+Error: "No firewall rules found"
+  -> Ensure Windows Firewall service is running
+  -> Run as Administrator for full access
+
+PowerShell execution policy:
+  -> Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+Timeout errors:
+  -> Security software may be blocking PowerShell
+  -> Try running as Administrator
+
+================================================================================
+INTEGRATION
+--------------------------------------------------------------------------------
+
+With SynapseLink:
+  from synapselink import quick_send
+  from securityaudit import SecurityExceptionAuditor
+  
+  auditor = SecurityExceptionAuditor()
+  recommendations = auditor.generate_recommendations()
+  
+  if recommendations["missing"]:
+      quick_send("TEAM", "Security Exceptions Needed", "...")
+
+With EnvGuard:
+  python -m envguard scan .
+  python securityaudit.py audit --recommend
+
+With APIProbe:
+  python -m apiprobe validate-all
+  python securityaudit.py check --port 8000
+
+================================================================================
+COMMON WORKFLOWS
+--------------------------------------------------------------------------------
+
+1. New Developer Setup:
+   python securityaudit.py recommend --format json -o whitelist.json
+   # Share whitelist.json with new team member
+
+2. Debugging "Connection Refused":
+   python securityaudit.py check --process uvicorn --port 8000
+   python securityaudit.py recommend
+   # Add missing exceptions
+
+3. Monthly Security Cleanup:
+   python securityaudit.py cleanup --dry-run
+   # Review stale exceptions
+   python securityaudit.py cleanup --apply
+   # Remove old entries
+
+4. After Security Software Update:
+   python securityaudit.py audit --recommend -o post_update_audit.md
+   # Compare with previous audit
+
+================================================================================
+QUICK DEBUGGING GUIDE
+--------------------------------------------------------------------------------
+
+Server won't start?
+  1. python securityaudit.py check --process uvicorn --port 8000
+  2. If process not running -> Check logs
+  3. If port not in use -> Security might be blocking
+  4. python securityaudit.py recommend -> Add missing exceptions
+
+Network request failing?
+  1. python securityaudit.py check --port <target_port>
+  2. python securityaudit.py audit --product windows_firewall
+  3. Check for firewall rules blocking the connection
+
+API call timing out?
+  1. Is the target service running? check --process
+  2. Is the port accessible? check --port
+  3. Any firewall rules? audit --product windows_firewall
+
+================================================================================
+RESOURCES
+--------------------------------------------------------------------------------
+
+Documentation:   README.md
+Examples:        EXAMPLES.md
+Integration:     INTEGRATION_PLAN.md
+Quick Guides:    QUICK_START_GUIDES.md
+GitHub:          https://github.com/DonkRonk17/SecurityExceptionAuditor
+Issues:          https://github.com/DonkRonk17/SecurityExceptionAuditor/issues
+
+================================================================================
+CREDITS
+--------------------------------------------------------------------------------
+
+Built by:        FORGE (Team Brain)
+For:             Logan Smith / Metaphy LLC
+Requested by:    FORGE (Tool Request #29)
+Part of:         Beacon HQ / Team Brain Ecosystem
+Date:            January 31, 2026
+
+================================================================================
