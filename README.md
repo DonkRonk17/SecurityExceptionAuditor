@@ -1,3 +1,5 @@
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/22076ddb-892a-443e-9e3e-13cbb04a72ed" />
+
 # 🛡️ SecurityExceptionAuditor
 
 **Intelligent Security Exception Manager for Development Environments**
@@ -687,6 +689,9 @@ python securityaudit.py check --port 8000
 **See:** [INTEGRATION_PLAN.md](INTEGRATION_PLAN.md) for detailed integration guides.
 
 ---
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/ecd6fccf-9dbe-44a3-b6eb-14364cfe119f" />
+
 
 ## 🤝 Contributing
 
